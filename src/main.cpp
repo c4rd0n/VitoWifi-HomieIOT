@@ -7,7 +7,11 @@ HomieNode storageTankNode("storageTank","storageTank");
 std::map<std::string, HomieNode*> nodes;
 VitoWiFi_setProtocol(P300);
 DPTemp outsideTemp("outsideTemp", boilerNode.getId(), 0x5525);
-DPTemp boilerTemp("boilertemp", boilerNode.getId(), 0x0810);
+DPTemp boilerWaterTemp("boilerTemp", boilerNode.getId(),0x0810);
+DPHours burnerHoursRun("burnerHoursRun", boilerNode.getId(),0x08A7);
+DPStat pumpInternalStat("internalPump", boilerNode.getId(), 0x7660);
+DPRaw burnerStarts("burnerStarts", boilerNode.getId(),0x088A);
+
 DPStat pumpStat("pump", heating1Node.getId(), 0x2906);
 DPTemp hotWaterTemp("hotwatertemp", storageTankNode.getId(), 0x0812);
 
@@ -22,6 +26,8 @@ void globalCallbackHandler(const IDatapoint& dp, DPValue value) {
 }
 
 void setup() {
+  burnerStarts.setLength(4);
+
   VitoWiFi.setGlobalCallback(globalCallbackHandler);  // this callback will be used for all DPs without specific callback
                                                       // must be set after adding at least 1 datapoint
   VitoWiFi.setup(&Serial);
@@ -31,7 +37,7 @@ void setup() {
   nodes[storageTankNode.getId()] = &storageTankNode;
 
   Homie.disableLogging();
-  Homie_setFirmware("VitoWiFi", "1.0.1");
+  Homie_setFirmware("VitoWiFi", "1.0.2");
   Homie.setup();
 }
 
