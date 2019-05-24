@@ -2,20 +2,24 @@
 #include <VitoWiFi.h>
 
 HomieNode boilerNode("boiler", "boiler");
-HomieNode heating1Node("heating2", "heating");
+HomieNode heating2Node("heating2", "heating");
 HomieNode storageTankNode("storageTank","storageTank");
 std::map<std::string, HomieNode*> nodes;
 VitoWiFi_setProtocol(P300);
 DPTemp outsideTemp("outsideTemp", boilerNode.getId(), 0x5525);
 DPTemp boilerWaterTemp("boilerTemp", boilerNode.getId(),0x0810);
 DPHours burnerHoursRun("burnerHoursRun", boilerNode.getId(),0x08A7);
+DPHours burner1HoursRun("burner1HoursRun", boilerNode.getId(),0x0886);
+DPHours burner2HoursRun("burner2HoursRun", boilerNode.getId(),0x08AB);
 DPStat pumpInternalStat("internalPump", boilerNode.getId(), 0x7660);
-DPRaw burnerStarts("burnerStarts", boilerNode.getId(),0x088A);
+DPCount burnerStarts("burnerStarts", boilerNode.getId(),0x088A);
+DPTemp smokeTemp("smokeTemp", boilerNode.getId(),0x0808);
 
-DPMode currentOperatingMode("currentOperatingMode", heating1Node.getId(), 0x3500);
-DPTemp flowTemp("flowTemp", heating1Node.getId(), 0x3900);
-DPStat pumpStat("circulationPump", heating1Node.getId(), 0x2906);
-DPTemp roomTemp("roomTemp", heating1Node.getId(), 0x0898);
+DPMode currentOperatingMode("currentOperatingMode", heating2Node.getId(), 0x3500);
+DPTemp flowTemp("flowTemp", heating2Node.getId(), 0x3900);
+DPTemp returnFlowTemp("returnFlowTemp", heating2Node.getId(), 0x080A);
+DPStat pumpStat("circulationPump", heating2Node.getId(), 0x3906);
+DPTemp roomTemp("roomTemp", heating2Node.getId(), 0x0898);
 
 DPTemp hotWaterTemp("hotwatertemp", storageTankNode.getId(), 0x0812);
 DPTemp dischargeTemp("dischargeTemp", storageTankNode.getId(), 0x0814);
@@ -38,11 +42,11 @@ void setup() {
   VitoWiFi.setup(&Serial);
 
   nodes[boilerNode.getId()] = &boilerNode;
-  nodes[heating1Node.getId()] = &heating1Node;
+  nodes[heating2Node.getId()] = &heating2Node;
   nodes[storageTankNode.getId()] = &storageTankNode;
 
   Homie.disableLogging();
-  Homie_setFirmware("VitoWiFi", "1.0.4");
+  Homie_setFirmware("VitoWiFi", "1.0.5");
   Homie.setup();
 }
 
