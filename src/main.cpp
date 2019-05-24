@@ -12,14 +12,14 @@ DPHours burnerHoursRun("burnerHoursRun", boilerNode.getId(),0x08A7);
 DPStat pumpInternalStat("internalPump", boilerNode.getId(), 0x7660);
 DPRaw burnerStarts("burnerStarts", boilerNode.getId(),0x088A);
 
-DPStat currentOperatingMode("currentOperatingMode", heating1Node.getId(), 0x3500);
+DPMode currentOperatingMode("currentOperatingMode", heating1Node.getId(), 0x3500);
 DPTemp flowTemp("flowTemp", heating1Node.getId(), 0x3900);
 DPStat pumpStat("circulationPump", heating1Node.getId(), 0x2906);
 DPTemp roomTemp("roomTemp", heating1Node.getId(), 0x0898);
 
-
 DPTemp hotWaterTemp("hotwatertemp", storageTankNode.getId(), 0x0812);
-
+DPTemp dischargeTemp("dischargeTemp", storageTankNode.getId(), 0x0814);
+DPStat hotWaterPump("hotWaterPump", storageTankNode.getId(), 0x6513);
 
 void globalCallbackHandler(const IDatapoint& dp, DPValue value) {
   std::map<std::string, HomieNode*>::iterator it = nodes.find(dp.getGroup()); 
@@ -42,7 +42,7 @@ void setup() {
   nodes[storageTankNode.getId()] = &storageTankNode;
 
   Homie.disableLogging();
-  Homie_setFirmware("VitoWiFi", "1.0.3");
+  Homie_setFirmware("VitoWiFi", "1.0.4");
   Homie.setup();
 }
 
