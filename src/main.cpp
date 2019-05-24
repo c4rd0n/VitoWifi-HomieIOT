@@ -2,7 +2,7 @@
 #include <VitoWiFi.h>
 
 HomieNode boilerNode("boiler", "boiler");
-HomieNode heating1Node("heating1", "heating");
+HomieNode heating1Node("heating2", "heating");
 HomieNode storageTankNode("storageTank","storageTank");
 std::map<std::string, HomieNode*> nodes;
 VitoWiFi_setProtocol(P300);
@@ -12,7 +12,12 @@ DPHours burnerHoursRun("burnerHoursRun", boilerNode.getId(),0x08A7);
 DPStat pumpInternalStat("internalPump", boilerNode.getId(), 0x7660);
 DPRaw burnerStarts("burnerStarts", boilerNode.getId(),0x088A);
 
-DPStat pumpStat("pump", heating1Node.getId(), 0x2906);
+DPStat currentOperatingMode("currentOperatingMode", heating1Node.getId(), 0x3500);
+DPTemp flowTemp("flowTemp", heating1Node.getId(), 0x3900);
+DPStat pumpStat("circulationPump", heating1Node.getId(), 0x2906);
+DPTemp roomTemp("roomTemp", heating1Node.getId(), 0x0898);
+
+
 DPTemp hotWaterTemp("hotwatertemp", storageTankNode.getId(), 0x0812);
 
 
@@ -37,13 +42,12 @@ void setup() {
   nodes[storageTankNode.getId()] = &storageTankNode;
 
   Homie.disableLogging();
-  Homie_setFirmware("VitoWiFi", "1.0.2");
+  Homie_setFirmware("VitoWiFi", "1.0.3");
   Homie.setup();
 }
 
 void loop() {
   static unsigned long lastMillis = 0;
-  static bool optolinkIsConnected = false;
   if (millis() - lastMillis > 60 * 1000UL) {  // read all values every 60 seconds
     lastMillis = millis();
     VitoWiFi.readAll();
