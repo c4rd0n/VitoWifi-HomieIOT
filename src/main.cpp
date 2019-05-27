@@ -10,13 +10,13 @@ const char* tempType = "temperature";
 const char* switchType = "switch";
 const char* counterType = "counter";
 HomieNode boilerNode(boilierID, "chaudiere", "boiler");
-HomieNode heatingNode(heating2ID, "chauffage", "heating");
-HomieNode storageTank(storageTankID,"DHW", "storageTank");
+//HomieNode heatingNode(heating2ID, "chauffage", "heating");
+//HomieNode storageTank(storageTankID,"DHW", "storageTank");
 
 
 VitoWiFi_setProtocol(P300);
 DPTemp outsideTemp("outsideTemp", boilierID, 0x5525);
-HomieNode outsideTempHomie(outsideTemp.getName(),outsideTemp.getName(),tempType);
+//HomieNode outsideTempHomie(outsideTemp.getName(),outsideTemp.getName(),tempType);
 DPTemp boilerWaterTemp("boilerTemp", boilierID,0x0810);
 DPHours burnerHoursRun("burnerHoursRun", boilierID,0x08A7);
 DPHours burner1HoursRun("burner1HoursRun", boilierID,0x0886);
@@ -47,18 +47,15 @@ void globalCallbackHandler(const IDatapoint& dp, DPValue value) {
 void setup() {
   VitoWiFi.setGlobalCallback(globalCallbackHandler);  // this callback will be used for all DPs without specific callback
                                                       // must be set after adding at least 1 datapoint
-  outsideTemp.setCallback([](const IDatapoint& dp, DPValue value){
-    outsideTempHomie.setProperty("degrees").send(String(value.getFloat(),1));
-  });
-  VitoWiFi.setup(&Serial);
-
   homieNodes[boilierID] = &boilerNode;
-  homieNodes[heating2ID] = &heatingNode;
-  homieNodes[storageTankID] = &storageTank;
+//  homieNodes[heating2ID] = &heatingNode;
+//  homieNodes[storageTankID] = &storageTank;
 
-  outsideTempHomie.advertise("degrees")
+  boilerNode.advertise(outsideTemp.getName())
+    .setName("Outside Temperature")
     .setDatatype("float")
-    .setUnit("°C");
+    .setUnit("°C")
+    .setFormat("-60:60");
 
   Homie.disableLogging();
   Homie_setFirmware("VitoWiFi", "2.0.5");
