@@ -10,8 +10,8 @@ const char* tempType = "temperature";
 const char* switchType = "switch";
 const char* counterType = "counter";
 HomieNode boilerNode(boilierID, "chaudiere", "boiler");
-//HomieNode heatingNode(heating2ID, "chauffage", "heating");
-//HomieNode storageTank(storageTankID,"DHW", "storageTank");
+HomieNode heatingNode(heating2ID, "chauffage", "heating");
+HomieNode storageTank(storageTankID,"DHW", "storageTank");
 
 
 VitoWiFi_setProtocol(P300);
@@ -24,15 +24,15 @@ DPStat pumpInternalStat("internalPump", boilierID, 0x7660);
 DPCount burnerStarts("burnerStarts", boilierID,0x088A);
 DPTemp smokeTemp("smokeTemp", boilierID,0x0808);
 
-// DPMode currentOperatingMode("currentOperatingMode", heating2ID, 0x3500);
-// DPTemp flowTemp("flowTemp", heating2ID, 0x3900);
-// DPTemp returnFlowTemp("returnFlowTemp", heating2ID, 0x080A);
-// DPStat pumpStat("circulationPump", heating2ID, 0x3906);
-// DPTemp roomTemp("roomTemp", heating2ID, 0x0898);
+DPMode currentOperatingMode("currentOperatingMode", heating2ID, 0x3500);
+DPTemp flowTemp("flowTemp", heating2ID, 0x3900);
+DPTemp returnFlowTemp("returnFlowTemp", heating2ID, 0x080A);
+DPStat pumpStat("circulationPump", heating2ID, 0x3906);
+DPTemp roomTemp("roomTemp", heating2ID, 0x0898);
 
-// DPTemp hotWaterTemp("hotwatertemp", storageTankID, 0x0812);
-// DPTemp dischargeTemp("dischargeTemp", storageTankID, 0x0814);
-// DPStat hotWaterPump("hotWaterPump", storageTankID, 0x6513);
+DPTemp hotWaterTemp("hotwatertemp", storageTankID, 0x0812);
+DPTemp dischargeTemp("dischargeTemp", storageTankID, 0x0814);
+DPStat hotWaterPump("hotWaterPump", storageTankID, 0x6513);
 
 void globalCallbackHandler(const IDatapoint& dp, DPValue value) {
   std::map<std::string, HomieNode*>::iterator it = homieNodes.find(dp.getGroup()); 
@@ -49,8 +49,8 @@ void setup() {
   VitoWiFi.setup(&Serial);
 
   homieNodes[boilierID] = &boilerNode;
-  //homieNodes[heating2ID] = &heatingNode;
-  //homieNodes[storageTankID] = &storageTank;
+  homieNodes[heating2ID] = &heatingNode;
+  homieNodes[storageTankID] = &storageTank;
 
   boilerNode.advertise(outsideTemp.getName())
     .setName(outsideTemp.getName())
@@ -86,10 +86,48 @@ void setup() {
   boilerNode.advertise(smokeTemp.getName())
     .setName(smokeTemp.getName())
     .setDatatype("float")
-    .setUnit("°C");  
+    .setUnit("°C");
+
+  heatingNode.advertise(currentOperatingMode.getName())
+    .setName(currentOperatingMode.getName())
+    .setDatatype("integer")
+    .setFormat("0:3");
+  
+  heatingNode.advertise(flowTemp.getName())
+    .setName(flowTemp.getName())
+    .setDatatype("float")
+    .setFormat("0:150");
+  
+  heatingNode.advertise(returnFlowTemp.getName())
+    .setName(returnFlowTemp.getName())
+    .setDatatype("float")
+    .setFormat("0:150");
+  
+  heatingNode.advertise(pumpStat.getName())
+    .setName(pumpStat.getName())
+    .setDatatype("boolean");
+
+  heatingNode.advertise(roomTemp.getName())
+    .setName(roomTemp.getName())
+    .setDatatype("float")
+    .setFormat("0:64");
+
+  storageTank.advertise(hotWaterTemp.getName())
+    .setName(hotWaterTemp.getName())
+    .setDatatype("float")
+    .setFormat("0:150");
+
+  storageTank.advertise(dischargeTemp.getName())
+    .setName(dischargeTemp.getName())
+    .setDatatype("float")
+    .setFormat("0:150");
+
+  storageTank.advertise(hotWaterPump.getName())
+    .setName(hotWaterPump.getName())
+    .setDatatype("boolean");
 
   Homie.disableLogging();
-  Homie_setFirmware("VitoWiFi", "2.0.6");
+  Homie_setFirmware("VitoWiFi", "2.0.7");
 
   Homie.setup();
 }
