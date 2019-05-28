@@ -16,7 +16,6 @@ HomieNode boilerNode(boilierID, "chaudiere", "boiler");
 
 VitoWiFi_setProtocol(P300);
 DPTemp outsideTemp("outsideTemp", boilierID, 0x5525);
-//HomieNode outsideTempHomie(outsideTemp.getName(),outsideTemp.getName(),tempType);
 DPTemp boilerWaterTemp("boilerTemp", boilierID,0x0810);
 DPHours burnerHoursRun("burnerHoursRun", boilierID,0x08A7);
 DPHours burner1HoursRun("burner1HoursRun", boilierID,0x0886);
@@ -25,15 +24,15 @@ DPStat pumpInternalStat("internalPump", boilierID, 0x7660);
 DPCount burnerStarts("burnerStarts", boilierID,0x088A);
 DPTemp smokeTemp("smokeTemp", boilierID,0x0808);
 
-DPMode currentOperatingMode("currentOperatingMode", heating2ID, 0x3500);
-DPTemp flowTemp("flowTemp", heating2ID, 0x3900);
-DPTemp returnFlowTemp("returnFlowTemp", heating2ID, 0x080A);
-DPStat pumpStat("circulationPump", heating2ID, 0x3906);
-DPTemp roomTemp("roomTemp", heating2ID, 0x0898);
+// DPMode currentOperatingMode("currentOperatingMode", heating2ID, 0x3500);
+// DPTemp flowTemp("flowTemp", heating2ID, 0x3900);
+// DPTemp returnFlowTemp("returnFlowTemp", heating2ID, 0x080A);
+// DPStat pumpStat("circulationPump", heating2ID, 0x3906);
+// DPTemp roomTemp("roomTemp", heating2ID, 0x0898);
 
-DPTemp hotWaterTemp("hotwatertemp", storageTankID, 0x0812);
-DPTemp dischargeTemp("dischargeTemp", storageTankID, 0x0814);
-DPStat hotWaterPump("hotWaterPump", storageTankID, 0x6513);
+// DPTemp hotWaterTemp("hotwatertemp", storageTankID, 0x0812);
+// DPTemp dischargeTemp("dischargeTemp", storageTankID, 0x0814);
+// DPStat hotWaterPump("hotWaterPump", storageTankID, 0x6513);
 
 void globalCallbackHandler(const IDatapoint& dp, DPValue value) {
   std::map<std::string, HomieNode*>::iterator it = homieNodes.find(dp.getGroup()); 
@@ -47,18 +46,50 @@ void globalCallbackHandler(const IDatapoint& dp, DPValue value) {
 void setup() {
   VitoWiFi.setGlobalCallback(globalCallbackHandler);  // this callback will be used for all DPs without specific callback
                                                       // must be set after adding at least 1 datapoint
+  VitoWiFi.setup(&Serial);
+
   homieNodes[boilierID] = &boilerNode;
-//  homieNodes[heating2ID] = &heatingNode;
-//  homieNodes[storageTankID] = &storageTank;
+  //homieNodes[heating2ID] = &heatingNode;
+  //homieNodes[storageTankID] = &storageTank;
 
   boilerNode.advertise(outsideTemp.getName())
-    .setName("Outside Temperature")
+    .setName(outsideTemp.getName())
     .setDatatype("float")
     .setUnit("°C")
     .setFormat("-60:60");
+ 
+  boilerNode.advertise(boilerWaterTemp.getName())
+    .setName(boilerWaterTemp.getName())
+    .setDatatype("float")
+    .setUnit("°C")
+    .setFormat("0:150");
+  
+  boilerNode.advertise(burnerHoursRun.getName())
+    .setName(burnerHoursRun.getName())
+    .setDatatype("float")
+    .setFormat("0:1150000");
+  
+  boilerNode.advertise(burner1HoursRun.getName())
+    .setName(burner1HoursRun.getName())
+    .setDatatype("float")
+    .setFormat("0:1150000");
+  
+  boilerNode.advertise(burner2HoursRun.getName())
+    .setName(burner2HoursRun.getName())
+    .setDatatype("float")
+    .setFormat("0:1150000");
+  
+  boilerNode.advertise(pumpInternalStat.getName())
+    .setName(pumpInternalStat.getName())
+    .setDatatype("boolean");
+
+  boilerNode.advertise(smokeTemp.getName())
+    .setName(smokeTemp.getName())
+    .setDatatype("float")
+    .setUnit("°C");  
 
   Homie.disableLogging();
-  Homie_setFirmware("VitoWiFi", "2.0.5");
+  Homie_setFirmware("VitoWiFi", "2.0.6");
 
   Homie.setup();
 }
